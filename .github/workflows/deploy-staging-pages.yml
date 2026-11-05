@@ -17,7 +17,9 @@ concurrency:
 jobs:
   staging-pages:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Pages permaneceu em updating_pages ate o limite de 10 min no run anterior.
+    # Tentativa de homologacao isolada com run novo e artefato unico.
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
