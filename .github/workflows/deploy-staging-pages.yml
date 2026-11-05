@@ -36,7 +36,7 @@ jobs:
           node-version: '22'
 
       - name: Gate de regressao do cache, sincronizacao e fotos
-        run: node --test src/tests/qa-integration.test.mjs src/tests/qa-sync.test.mjs src/tests/qa-photo-storage.test.mjs src/tests/qa-offline-history.test.mjs
+        run: node --test src/tests/qa-integration.test.mjs src/tests/qa-sync.test.mjs src/tests/qa-photo-storage.test.mjs src/tests/qa-offline-history.test.mjs src/tests/qa-prepare-gallery.test.mjs
 
       - name: Validar cofre cifrado e fotos offline em navegador real
         run: |
