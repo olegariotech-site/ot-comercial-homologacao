@@ -1,0 +1,61 @@
+name: OT Comercial V1.5 | GitHub Pages Homologacao
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ot-comercial-staging-pages
+  cancel-in-progress: true
+
+jobs:
+  staging-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout V1.5 da fonte oficial OT
+        uses: actions/checkout@v4
+        with:
+          repository: olegariotech-site/ot-comercial
+          ref: feat/v1-5-integracao-premium-offline
+          path: src
+          persist-credentials: false
+
+      - name: Preparar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Construir pre-visualizacao isolada de homologacao
+        run: node src/tests/staging/build-preview.mjs
+
+      - name: Reprovar colisao com o CRM de producao
+        run: node src/tests/staging/verify-preview-isolation.mjs
+
+      - name: Verificar arquivos estaticos do Pages
+        run: |
+          test -s src/artifacts/staging-preview/index.html
+          test -s src/artifacts/staging-preview/config.js
+          test -s src/artifacts/staging-preview/sw.js
+          test -s src/artifacts/staging-preview/field-sync.js
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar artefato do site de testes
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: src/artifacts/staging-preview
+
+      - name: Publicar somente o site de homologacao
+        id: deployment
+        uses: actions/deploy-pages@v4
